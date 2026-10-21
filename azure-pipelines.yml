@@ -1,0 +1,234 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - name: azureConnection
+    value: REPLACE_WITH_AZURE_DEVOPS_SERVICE_CONNECTION
+
+  - name: tfVersion
+    value: '1.9.8'
+
+  - name: agentPool
+    value: REPLACE_WITH_SELF_HOSTED_AGENT_POOL
+
+  - name: applyEnvironment
+    value: REPLACE_WITH_APPROVAL_ENVIRONMENT
+
+stages:
+  - stage: Validate
+    displayName: Validate Terraform
+    jobs:
+      - job: TerraformValidate
+        displayName: Format and Validate
+        steps:
+          - checkout: self
+
+          - script: |
+              set -euo pipefail
+              TERRAFORM_VERSION="$(tfVersion)"
+              ARCHIVE="terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
+              curl -fsSLO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${ARCHIVE}"
+              curl -fsSLO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS"
+              grep " ${ARCHIVE}$" "terraform_${TERRAFORM_VERSION}_SHA256SUMS" | sha256sum -c -
+
+              unzip -o "${ARCHIVE}" -d /tmp/terraform
+              sudo install /tmp/terraform/terraform /usr/local/bin/terraform
+              terraform version
+            displayName: Install Terraform
+
+          - script: terraform fmt -check -recursive
+            displayName: Check Terraform formatting
+            workingDirectory: $(Build.SourcesDirectory)
+
+          - script: |
+              set -euo pipefail
+              terraform init -backend=false -input=false
+              terraform validate
+            displayName: Initialize and validate Terraform
+            workingDirectory: $(Build.SourcesDirectory)
+
+  - stage: Plan
+    displayName: Terraform Plan
+    dependsOn: Validate
+    condition: succeeded()
+    jobs:
+      - job: TerraformPlan
+        displayName: Create and Publish Plan
+        pool:
+          name: $(agentPool)
+        workspace:
+          clean: all
+        steps:
+          - checkout: self
+
+          - script: |
+              set -euo pipefail
+              TERRAFORM_VERSION="$(tfVersion)"
+              ARCHIVE="terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
+              curl -fsSLO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${ARCHIVE}"
+              curl -fsSLO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS"
+              grep " ${ARCHIVE}$" "terraform_${TERRAFORM_VERSION}_SHA256SUMS" | sha256sum -c -
+
+              unzip -o "${ARCHIVE}" -d /tmp/terraform
+              sudo install /tmp/terraform/terraform /usr/local/bin/terraform
+              terraform version
+            displayName: Install Terraform
+
+          - task: AzureCLI@2
+            displayName: Initialize Backend and Create Plan
+            inputs:
+              azureSubscription: $(azureConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              addSpnToEnvironment: true
+              workingDirectory: $(Build.SourcesDirectory)
+              inlineScript: |
+                set -euo pipefail
+
+                export ARM_USE_OIDC=true
+                export ARM_CLIENT_ID="$servicePrincipalId"
+                export ARM_OIDC_TOKEN="$idToken"
+                export ARM_TENANT_ID="$tenantId"
+                export ARM_SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
+                export ARM_USE_AZUREAD=true
+
+                : "${TFSTATE_RESOURCE_GROUP:?Configure TFSTATE_RESOURCE_GROUP}"
+                : "${TFSTATE_STORAGE_ACCOUNT:?Configure TFSTATE_STORAGE_ACCOUNT}"
+                : "${TFSTATE_CONTAINER:?Configure TFSTATE_CONTAINER}"
+                : "${TFSTATE_KEY:?Configure TFSTATE_KEY}"
+
+                BACKEND_FILE="$(Agent.TempDirectory)/backend.hcl"
+
+                cat > "$BACKEND_FILE" <<EOF
+                resource_group_name  = "$TFSTATE_RESOURCE_GROUP"
+                storage_account_name = "$TFSTATE_STORAGE_ACCOUNT"
+                container_name       = "$TFSTATE_CONTAINER"
+                key                  = "$TFSTATE_KEY"
+                use_azuread_auth     = true
+                EOF
+
+                trap 'rm -f "$BACKEND_FILE"' EXIT
+
+                terraform init -input=false -backend-config="$BACKEND_FILE"
+
+                terraform plan \
+                  -input=false \
+                  -out="$(Build.ArtifactStagingDirectory)/tfplan"
+
+                terraform show -no-color \
+                  "$(Build.ArtifactStagingDirectory)/tfplan" \
+                  > "$(Build.ArtifactStagingDirectory)/plan.txt"
+            env:
+              TF_VAR_subscription_id: $(subscriptionId)
+              TF_VAR_tfstate_storage_account_id: $(tfstateStorageAccountId)
+              TF_VAR_owner: $(owner)
+              TF_VAR_costcenter: $(costcenter)
+              TF_VAR_agent_admin_ssh_public_key: $(agent_admin_ssh_public_key)
+
+              TFSTATE_RESOURCE_GROUP: $(tfstateResourceGroup)
+              TFSTATE_STORAGE_ACCOUNT: $(tfstateStorageAccount)
+              TFSTATE_CONTAINER: $(tfstateContainer)
+              TFSTATE_KEY: $(tfstateKey)
+
+          - publish: $(Build.ArtifactStagingDirectory)/tfplan
+            artifact: tfplan
+            displayName: Publish Saved Plan
+
+          - publish: $(Build.ArtifactStagingDirectory)/plan.txt
+            artifact: plan-text
+            displayName: Publish Readable Plan
+
+  - stage: Apply
+    displayName: Approval-Gated Apply
+    dependsOn: Plan
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: TerraformApply
+        displayName: Apply Approved Plan
+        environment: $(applyEnvironment)
+        pool:
+          name: $(agentPool)
+        workspace:
+          clean: all
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+
+                - download: current
+                  artifact: tfplan
+                  displayName: Download Saved Plan
+
+                - script: |
+                    set -euo pipefail
+                    TERRAFORM_VERSION="$(tfVersion)"
+                    ARCHIVE="terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
+                    curl -fsSLO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${ARCHIVE}"
+                    curl -fsSLO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS"
+                    grep " ${ARCHIVE}$" "terraform_${TERRAFORM_VERSION}_SHA256SUMS" | sha256sum -c -
+
+                    unzip -o "${ARCHIVE}" -d /tmp/terraform
+                    sudo install /tmp/terraform/terraform /usr/local/bin/terraform
+                    terraform version
+                  displayName: Install Terraform
+
+                - task: AzureCLI@2
+                  displayName: Initialize Backend and Apply Plan
+                  inputs:
+                    azureSubscription: $(azureConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    workingDirectory: $(Build.SourcesDirectory)
+                    inlineScript: |
+                      set -euo pipefail
+
+                      export ARM_USE_OIDC=true
+                      export ARM_CLIENT_ID="$servicePrincipalId"
+                      export ARM_OIDC_TOKEN="$idToken"
+                      export ARM_TENANT_ID="$tenantId"
+                      export ARM_SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
+                      export ARM_USE_AZUREAD=true
+
+                      : "${TFSTATE_RESOURCE_GROUP:?Configure TFSTATE_RESOURCE_GROUP}"
+                      : "${TFSTATE_STORAGE_ACCOUNT:?Configure TFSTATE_STORAGE_ACCOUNT}"
+                      : "${TFSTATE_CONTAINER:?Configure TFSTATE_CONTAINER}"
+                      : "${TFSTATE_KEY:?Configure TFSTATE_KEY}"
+
+                      BACKEND_FILE="$(Agent.TempDirectory)/backend.hcl"
+
+                      cat > "$BACKEND_FILE" <<EOF
+                      resource_group_name  = "$TFSTATE_RESOURCE_GROUP"
+                      storage_account_name = "$TFSTATE_STORAGE_ACCOUNT"
+                      container_name       = "$TFSTATE_CONTAINER"
+                      key                  = "$TFSTATE_KEY"
+                      use_azuread_auth     = true
+                      EOF
+
+                      trap 'rm -f "$BACKEND_FILE"' EXIT
+
+                      terraform init -input=false -backend-config="$BACKEND_FILE"
+
+                      terraform apply \
+                        -input=false \
+                        "$(Pipeline.Workspace)/tfplan/tfplan"
+                  env:
+                    TF_VAR_subscription_id: $(subscriptionId)
+                    TF_VAR_tfstate_storage_account_id: $(tfstateStorageAccountId)
+                    TF_VAR_owner: $(owner)
+                    TF_VAR_costcenter: $(costcenter)
+                    TF_VAR_agent_admin_ssh_public_key: $(agent_admin_ssh_public_key)
+
+                    TFSTATE_RESOURCE_GROUP: $(tfstateResourceGroup)
+                    TFSTATE_STORAGE_ACCOUNT: $(tfstateStorageAccount)
+                    TFSTATE_CONTAINER: $(tfstateContainer)
+                    TFSTATE_KEY: $(tfstateKey)

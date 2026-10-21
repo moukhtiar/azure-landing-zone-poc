@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="850" viewBox="0 0 1600 850" role="img" aria-labelledby="title desc">
+<title id="title">Terraform CI/CD — Azure DevOps Pipeline Workflow</title>
+<desc id="desc">Three-stage Azure DevOps workflow: Validate on Microsoft-hosted Ubuntu, Plan on a self-hosted agent using workload identity federation and a remote state backend, then approval-gated Apply using the same saved plan.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6faff"/><stop offset="1" stop-color="#edf4fb"/></linearGradient>
+  <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#1f3b5b" flood-opacity=".12"/></filter>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#1677c8"/></marker>
+  <style>
+    .title{font:700 32px 'Segoe UI',Arial,sans-serif;fill:#153452}.subtitle{font:400 16px 'Segoe UI',Arial,sans-serif;fill:#4e657b}
+    .head{font:700 20px 'Segoe UI',Arial,sans-serif;fill:#173c60}.body{font:400 14px 'Segoe UI',Arial,sans-serif;fill:#38546d}
+    .small{font:400 12px 'Segoe UI',Arial,sans-serif;fill:#526b80}.tag{font:700 11px 'Segoe UI',Arial,sans-serif;letter-spacing:.5px}
+  </style>
+</defs>
+<rect width="1600" height="850" fill="url(#bg)"/>
+<rect x="50" y="35" width="1500" height="112" rx="22" fill="#fff" filter="url(#shadow)"/>
+<rect x="50" y="35" width="9" height="112" rx="4" fill="#0078d4"/>
+<text x="84" y="81" class="title">Terraform CI/CD with Azure DevOps</text>
+<text x="84" y="111" class="subtitle">Validate → Plan → Review / Approve → Apply • Saved plan artifact • Workload identity federation</text>
+
+<!-- source -->
+<rect x="55" y="250" width="210" height="210" rx="18" fill="#fff" stroke="#9db9d1" stroke-width="2" filter="url(#shadow)"/>
+<rect x="55" y="250" width="210" height="52" rx="18" fill="#e7f1fb"/>
+<path d="M55 284 Q55 302 73 302 H247 Q265 302 265 284" fill="#e7f1fb"/>
+<text x="160" y="281" text-anchor="middle" class="head" style="font-size:17px">Git Repository</text>
+<text x="160" y="333" text-anchor="middle" class="body">Terraform files</text>
+<text x="160" y="358" text-anchor="middle" class="body">VNet module</text>
+<text x="160" y="383" text-anchor="middle" class="body">azure-pipelines.yml</text>
+<rect x="85" y="408" width="150" height="29" rx="14" fill="#f0f5fa" stroke="#c5d6e4"/>
+<text x="160" y="427" text-anchor="middle" class="tag" fill="#3f5d76">MAIN BRANCH</text>
+
+<!-- validate -->
+<rect x="315" y="220" width="300" height="270" rx="20" fill="#fff" stroke="#5da6e6" stroke-width="2" filter="url(#shadow)"/>
+<rect x="315" y="220" width="300" height="62" rx="20" fill="#d9edff"/>
+<path d="M315 261 Q315 282 336 282 H594 Q615 282 615 261" fill="#d9edff"/>
+<circle cx="348" cy="251" r="16" fill="#1677c8"/>
+<text x="348" y="256" text-anchor="middle" style="font:700 15px Arial;fill:#fff">1</text>
+<text x="375" y="257" class="head">Validate</text>
+<text x="340" y="316" class="body">• Install pinned Terraform</text>
+<text x="340" y="345" class="body">• Verify SHA-256 checksum</text>
+<text x="340" y="374" class="body">• terraform fmt -check</text>
+<text x="340" y="403" class="body">• init -backend=false</text>
+<text x="340" y="432" class="body">• terraform validate</text>
+<rect x="340" y="450" width="250" height="24" rx="12" fill="#edf6ff"/>
+<text x="465" y="466" text-anchor="middle" class="tag" fill="#075a9c">MICROSOFT-HOSTED UBUNTU</text>
+
+<!-- plan -->
+<rect x="670" y="220" width="300" height="270" rx="20" fill="#fff" stroke="#55b99a" stroke-width="2" filter="url(#shadow)"/>
+<rect x="670" y="220" width="300" height="62" rx="20" fill="#d8f4e9"/>
+<path d="M670 261 Q670 282 691 282 H949 Q970 282 970 261" fill="#d8f4e9"/>
+<circle cx="703" cy="251" r="16" fill="#12805c"/>
+<text x="703" y="256" text-anchor="middle" style="font:700 15px Arial;fill:#fff">2</text>
+<text x="730" y="257" class="head">Plan</text>
+<text x="695" y="316" class="body">• Azure service connection</text>
+<text x="695" y="345" class="body">• OIDC / federated identity</text>
+<text x="695" y="374" class="body">• Initialize remote backend</text>
+<text x="695" y="403" class="body">• terraform plan -out=tfplan</text>
+<text x="695" y="432" class="body">• Publish binary + text plan</text>
+<rect x="695" y="450" width="250" height="24" rx="12" fill="#e9f9f2"/>
+<text x="820" y="466" text-anchor="middle" class="tag" fill="#126b50">SELF-HOSTED AGENT</text>
+
+<!-- approval -->
+<rect x="1025" y="220" width="230" height="270" rx="20" fill="#fff" stroke="#e3b35e" stroke-width="2" filter="url(#shadow)"/>
+<rect x="1025" y="220" width="230" height="62" rx="20" fill="#fff0d6"/>
+<path d="M1025 261 Q1025 282 1046 282 H1234 Q1255 282 1255 261" fill="#fff0d6"/>
+<circle cx="1058" cy="251" r="16" fill="#b7791f"/>
+<text x="1058" y="256" text-anchor="middle" style="font:700 15px Arial;fill:#fff">3</text>
+<text x="1085" y="257" class="head" style="font-size:18px">Approval Gate</text>
+<text x="1140" y="322" text-anchor="middle" class="body">Review readable plan</text>
+<text x="1140" y="351" text-anchor="middle" class="body">Confirm impact</text>
+<text x="1140" y="380" text-anchor="middle" class="body">Approve environment</text>
+<rect x="1050" y="408" width="180" height="42" rx="10" fill="#fff7e9" stroke="#f0d5a3"/>
+<text x="1140" y="425" text-anchor="middle" class="tag" fill="#855b18">MAIN BRANCH ONLY</text>
+<text x="1140" y="441" text-anchor="middle" class="small">Approval checks configured separately</text>
+
+<!-- apply -->
+<rect x="1310" y="220" width="235" height="270" rx="20" fill="#fff" stroke="#8b79d9" stroke-width="2" filter="url(#shadow)"/>
+<rect x="1310" y="220" width="235" height="62" rx="20" fill="#e8e3ff"/>
+<path d="M1310 261 Q1310 282 1331 282 H1524 Q1545 282 1545 261" fill="#e8e3ff"/>
+<circle cx="1343" cy="251" r="16" fill="#6952c8"/>
+<text x="1343" y="256" text-anchor="middle" style="font:700 15px Arial;fill:#fff">4</text>
+<text x="1370" y="257" class="head">Apply</text>
+<text x="1335" y="316" class="body">• Download saved plan</text>
+<text x="1335" y="345" class="body">• Re-authenticate with OIDC</text>
+<text x="1335" y="374" class="body">• Initialize same backend</text>
+<text x="1335" y="403" class="body">• Apply exact saved plan</text>
+<rect x="1335" y="432" width="185" height="28" rx="14" fill="#f0edff"/>
+<text x="1427" y="450" text-anchor="middle" class="tag" fill="#5540a8">DEPLOYMENT ENVIRONMENT</text>
+
+<!-- arrows -->
+<path d="M265 355 H308" stroke="#1677c8" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+<path d="M615 355 H663" stroke="#1677c8" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+<path d="M970 355 H1018" stroke="#1677c8" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+<path d="M1255 355 H1303" stroke="#1677c8" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+<!-- backend &amp; auth rails -->
+<rect x="315" y="555" width="940" height="115" rx="18" fill="#fff" stroke="#a9bfd2" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="345" y="586" class="head" style="font-size:18px">Shared deployment dependencies</text>
+<rect x="345" y="605" width="260" height="42" rx="10" fill="#e9f9f2" stroke="#a8dec6"/>
+<text x="475" y="622" text-anchor="middle" class="body">Azure DevOps service connection</text>
+<text x="475" y="638" text-anchor="middle" class="small">Workload identity federation</text>
+<rect x="635" y="605" width="270" height="42" rx="10" fill="#f2ebff" stroke="#d2c2fb"/>
+<text x="770" y="622" text-anchor="middle" class="body">Remote Terraform state</text>
+<text x="770" y="638" text-anchor="middle" class="small">Azure Blob Storage backend</text>
+<rect x="935" y="605" width="290" height="42" rx="10" fill="#edf6ff" stroke="#b7d9f7"/>
+<text x="1080" y="622" text-anchor="middle" class="body">Self-hosted agent network access</text>
+<text x="1080" y="638" text-anchor="middle" class="small">Private endpoint / DNS reachability</text>
+<path d="M820 490 V540 H770 V555" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="6 5" fill="none"/>
+<path d="M1427 490 V530 H1080 V555" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="6 5" fill="none"/>
+<path d="M820 490 V522 H475 V555" stroke="#12805c" stroke-width="2.5" stroke-dasharray="6 5" fill="none"/>
+
+<rect x="55" y="720" width="1490" height="78" rx="16" fill="#fff" stroke="#d7e2ec"/>
+<text x="82" y="750" class="body">Safety note: pipeline YAML describes the workflow; a working deployment also requires valid service connection permissions, pipeline variables,</text>
+<text x="82" y="775" class="body">an existing remote-state container, agent-to-backend connectivity, and approval checks configured on the Azure DevOps environment.</text>
+<text x="55" y="828" class="small">Workflow diagram • Illustrative sequence based on the repository pipeline • Not a guarantee of successful deployment</text>
+</svg>

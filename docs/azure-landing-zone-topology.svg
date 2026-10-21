@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-labelledby="title desc">
+<title id="title">Azure Landing Zone POC — Network Topology</title>
+<desc id="desc">Hub and spoke Azure virtual networks, configured subnets, bidirectional peering, NSGs, NAT Gateway, self-hosted agent VM, and private endpoint and DNS connectivity for Terraform state. Azure Firewall and Bastion subnets are shown as subnet reservations only, not deployed services.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5f9ff"/><stop offset="1" stop-color="#edf4fb"/></linearGradient>
+  <linearGradient id="hub" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e7f3ff"/><stop offset="1" stop-color="#d7eaff"/></linearGradient>
+  <linearGradient id="spoke" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ecfbf5"/><stop offset="1" stop-color="#d8f4e9"/></linearGradient>
+  <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#1f3b5b" flood-opacity=".12"/></filter>
+  <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#1677c8"/></marker>
+  <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#12805c"/></marker>
+  <style>
+    .title{font:700 32px 'Segoe UI',Arial,sans-serif;fill:#153452}.subtitle{font:400 16px 'Segoe UI',Arial,sans-serif;fill:#4e657b}
+    .vnetTitle{font:700 20px 'Segoe UI',Arial,sans-serif;fill:#173c60}.vnetSub{font:500 14px 'Segoe UI',Arial,sans-serif;fill:#45647f}
+    .subTitle{font:700 15px 'Segoe UI',Arial,sans-serif;fill:#183a56}.small{font:400 12px 'Segoe UI',Arial,sans-serif;fill:#4d6479}
+    .tag{font:700 11px 'Segoe UI',Arial,sans-serif;letter-spacing:.6px}.label{font:600 13px 'Segoe UI',Arial,sans-serif;fill:#21435e}
+    .note{font:400 13px 'Segoe UI',Arial,sans-serif;fill:#42576b}.tiny{font:400 11px 'Segoe UI',Arial,sans-serif;fill:#5d7183}
+  </style>
+</defs>
+<rect width="1600" height="1050" fill="url(#bg)"/>
+<rect x="48" y="35" width="1504" height="120" rx="22" fill="#ffffff" filter="url(#shadow)"/>
+<rect x="48" y="35" width="9" height="120" rx="4" fill="#0078d4"/>
+<text x="82" y="82" class="title">Azure Landing Zone POC</text>
+<text x="82" y="113" class="subtitle">Network foundation • UAE North • Terraform-managed • Hub-and-spoke topology</text>
+<rect x="1235" y="61" width="270" height="48" rx="24" fill="#e8f3ff" stroke="#b7d9f7"/>
+<text x="1370" y="81" text-anchor="middle" class="tag" fill="#075a9c">IMPLEMENTED CONFIGURATION</text>
+<text x="1370" y="98" text-anchor="middle" class="tiny">Resource status distinguished below</text>
+
+<!-- Hub VNet -->
+<rect x="65" y="195" width="720" height="590" rx="22" fill="url(#hub)" stroke="#5da6e6" stroke-width="2.5" filter="url(#shadow)"/>
+<rect x="65" y="195" width="720" height="76" rx="22" fill="#d1e8ff"/>
+<path d="M65 249 Q65 271 87 271 H763 Q785 271 785 249" fill="#d1e8ff"/>
+<text x="94" y="230" class="vnetTitle">Hub Virtual Network</text>
+<text x="94" y="253" class="vnetSub">vnet-hub-poc-uaen-01  •  10.0.0.0/22</text>
+<rect x="638" y="214" width="118" height="29" rx="14" fill="#ffffff" stroke="#a7cfee"/>
+<text x="697" y="233" text-anchor="middle" class="tag" fill="#075a9c">HUB VNET</text>
+
+<!-- Hub subnet cards -->
+<g filter="url(#shadow)">
+  <rect x="94" y="292" width="310" height="82" rx="12" fill="#fff" stroke="#b9d8f3"/>
+  <rect x="94" y="292" width="7" height="82" rx="3" fill="#8799aa"/>
+  <text x="116" y="318" class="subTitle">AzureFirewallSubnet</text>
+  <text x="116" y="340" class="small">10.0.0.0/26</text>
+  <rect x="286" y="306" width="100" height="22" rx="11" fill="#eef1f4"/>
+  <text x="336" y="321" text-anchor="middle" class="tag" fill="#586b7a">SUBNET ONLY</text>
+
+  <rect x="425" y="292" width="330" height="82" rx="12" fill="#fff" stroke="#b9d8f3"/>
+  <rect x="425" y="292" width="7" height="82" rx="3" fill="#8799aa"/>
+  <text x="447" y="318" class="subTitle">AzureBastionSubnet</text>
+  <text x="447" y="340" class="small">10.0.0.64/26</text>
+  <rect x="637" y="306" width="100" height="22" rx="11" fill="#eef1f4"/>
+  <text x="687" y="321" text-anchor="middle" class="tag" fill="#586b7a">SUBNET ONLY</text>
+
+  <rect x="94" y="392" width="310" height="82" rx="12" fill="#fff" stroke="#b9d8f3"/>
+  <rect x="94" y="392" width="7" height="82" rx="3" fill="#1677c8"/>
+  <text x="116" y="418" class="subTitle">snet-hub-shared</text>
+  <text x="116" y="440" class="small">10.0.1.0/24</text>
+  <text x="116" y="459" class="tiny">Shared hub services subnet</text>
+
+  <rect x="425" y="392" width="330" height="82" rx="12" fill="#fff" stroke="#b9d8f3"/>
+  <rect x="425" y="392" width="7" height="82" rx="3" fill="#8b5cf6"/>
+  <text x="447" y="418" class="subTitle">snet-pe</text>
+  <text x="447" y="440" class="small">10.0.2.0/26</text>
+  <text x="447" y="459" class="tiny">Private Endpoint subnet</text>
+
+  <rect x="94" y="492" width="661" height="112" rx="12" fill="#fff" stroke="#b9d8f3"/>
+  <rect x="94" y="492" width="7" height="112" rx="3" fill="#12805c"/>
+  <text x="116" y="519" class="subTitle">snet-agents</text>
+  <text x="116" y="541" class="small">10.0.2.64/26</text>
+  <rect x="116" y="554" width="280" height="34" rx="8" fill="#e6f7ef" stroke="#a8dec6"/>
+  <text x="132" y="575" class="label">Linux self-hosted Azure DevOps agent VM</text>
+  <rect x="420" y="554" width="142" height="34" rx="8" fill="#fff5e7" stroke="#f4d29d"/>
+  <text x="491" y="575" text-anchor="middle" class="label">NAT Gateway</text>
+  <rect x="575" y="554" width="158" height="34" rx="8" fill="#fff5e7" stroke="#f4d29d"/>
+  <text x="654" y="575" text-anchor="middle" class="label">Static Public IP</text>
+</g>
+<text x="95" y="638" class="small">Network Security Groups are defined for relevant network segments.</text>
+<text x="95" y="659" class="small">NAT Gateway provides outbound connectivity for the agent subnet.</text>
+<rect x="94" y="687" width="661" height="67" rx="12" fill="#f4f8fc" stroke="#bed1e1" stroke-dasharray="6 5"/>
+<text x="116" y="713" class="label">Private DNS zone</text>
+<text x="116" y="735" class="small">privatelink.blob.core.windows.net • linked to hub and spoke VNets</text>
+
+<!-- Spoke VNet -->
+<rect x="900" y="195" width="635" height="420" rx="22" fill="url(#spoke)" stroke="#55b99a" stroke-width="2.5" filter="url(#shadow)"/>
+<rect x="900" y="195" width="635" height="76" rx="22" fill="#d4f3e7"/>
+<path d="M900 249 Q900 271 922 271 H1513 Q1535 271 1535 249" fill="#d4f3e7"/>
+<text x="929" y="230" class="vnetTitle">Spoke Virtual Network</text>
+<text x="929" y="253" class="vnetSub">vnet-spoke-poc-uaen-01  •  10.1.0.0/22</text>
+<rect x="1383" y="214" width="120" height="29" rx="14" fill="#fff" stroke="#9ed9c4"/>
+<text x="1443" y="233" text-anchor="middle" class="tag" fill="#126b50">SPOKE VNET</text>
+<g filter="url(#shadow)">
+  <rect x="929" y="296" width="274" height="132" rx="13" fill="#fff" stroke="#a9deca"/>
+  <rect x="929" y="296" width="7" height="132" rx="3" fill="#12805c"/>
+  <text x="951" y="326" class="subTitle">snet-web</text>
+  <text x="951" y="349" class="small">10.1.0.0/24</text>
+  <rect x="951" y="367" width="230" height="42" rx="8" fill="#e6f7ef" stroke="#a8dec6"/>
+  <text x="1066" y="384" text-anchor="middle" class="label">Web workload subnet</text>
+  <text x="1066" y="400" text-anchor="middle" class="tiny">NSG controls applicable traffic</text>
+
+  <rect x="1227" y="296" width="278" height="132" rx="13" fill="#fff" stroke="#a9deca"/>
+  <rect x="1227" y="296" width="7" height="132" rx="3" fill="#12805c"/>
+  <text x="1249" y="326" class="subTitle">snet-app</text>
+  <text x="1249" y="349" class="small">10.1.1.0/24</text>
+  <rect x="1249" y="367" width="234" height="42" rx="8" fill="#e6f7ef" stroke="#a8dec6"/>
+  <text x="1366" y="384" text-anchor="middle" class="label">Application workload subnet</text>
+  <text x="1366" y="400" text-anchor="middle" class="tiny">NSG controls applicable traffic</text>
+</g>
+<rect x="929" y="458" width="576" height="112" rx="12" fill="#f8fffc" stroke="#a9deca" stroke-dasharray="6 5"/>
+<text x="951" y="486" class="label">Workload segmentation</text>
+<text x="951" y="511" class="small">Web and application workloads occupy separate subnets.</text>
+<text x="951" y="534" class="small">Apply and verify NSG rules against the actual Terraform configuration.</text>
+
+<!-- Peering -->
+<path d="M785 440 C825 440 850 440 900 440" stroke="#1677c8" stroke-width="4" fill="none" marker-end="url(#arrowBlue)"/>
+<path d="M900 465 C850 465 825 465 785 465" stroke="#1677c8" stroke-width="4" fill="none" marker-end="url(#arrowBlue)"/>
+<rect x="786" y="383" width="114" height="43" rx="12" fill="#fff" stroke="#8bbde7" filter="url(#shadow)"/>
+<text x="843" y="400" text-anchor="middle" class="tag" fill="#075a9c">VNET</text>
+<text x="843" y="416" text-anchor="middle" class="tag" fill="#075a9c">PEERING</text>
+
+<!-- Storage/private endpoint card -->
+<rect x="900" y="650" width="635" height="135" rx="18" fill="#fff" stroke="#a78bfa" stroke-width="2" filter="url(#shadow)"/>
+<rect x="900" y="650" width="8" height="135" rx="4" fill="#8b5cf6"/>
+<text x="929" y="681" class="vnetTitle" style="font-size:18px">Terraform State — Azure Blob Storage</text>
+<text x="929" y="708" class="small">Existing Storage Account • Blob private endpoint in hub subnet snet-pe</text>
+<rect x="929" y="727" width="240" height="36" rx="9" fill="#f2ebff" stroke="#d2c2fb"/>
+<text x="1049" y="749" text-anchor="middle" class="label">Private Endpoint</text>
+<path d="M1175 745 H1210" stroke="#8b5cf6" stroke-width="3" marker-end="url(#arrowBlue)"/>
+<rect x="1220" y="727" width="282" height="36" rx="9" fill="#f2ebff" stroke="#d2c2fb"/>
+<text x="1361" y="749" text-anchor="middle" class="label">Blob service / Terraform state</text>
+<path d="M590 604 V627 H900" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="6 5" fill="none"/>
+<text x="610" y="621" class="tiny">Private service connectivity (conceptual)</text>
+
+<!-- Legend and notes -->
+<rect x="65" y="820" width="1470" height="170" rx="18" fill="#fff" stroke="#d7e2ec" filter="url(#shadow)"/>
+<text x="91" y="854" class="vnetTitle" style="font-size:18px">Legend &amp; implementation notes</text>
+<line x1="94" y1="882" x2="145" y2="882" stroke="#1677c8" stroke-width="4" marker-end="url(#arrowBlue)"/>
+<text x="158" y="887" class="note">Bidirectional VNet peering</text>
+<line x1="405" y1="882" x2="456" y2="882" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="6 5"/>
+<text x="469" y="887" class="note">Private service / DNS relationship</text>
+<rect x="750" y="870" width="24" height="24" rx="5" fill="#e6f7ef" stroke="#a8dec6"/>
+<text x="786" y="887" class="note">Configured workload or service</text>
+<rect x="1085" y="870" width="24" height="24" rx="5" fill="#eef1f4" stroke="#c7d0d9"/>
+<text x="1121" y="887" class="note">Subnet reservation only</text>
+<text x="92" y="923" class="small">Accuracy note: AzureFirewallSubnet and AzureBastionSubnet are shown as subnet definitions; Azure Firewall and Azure Bastion resources are not represented as deployed.</text>
+<text x="92" y="947" class="small">The diagram summarizes the Terraform configuration. Confirm actual deployment state, NSG rules, and endpoint/DNS resolution in the target subscription.</text>
+<text x="92" y="971" class="tiny">Architecture documentation • Azure Landing Zone POC • Not to scale</text>
+</svg>
