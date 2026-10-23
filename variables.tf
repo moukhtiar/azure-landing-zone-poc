@@ -41,19 +41,6 @@ variable "workload" {
   default     = "landingzone"
 }
 
-# Two-digit resource sequence number.
-
-variable "sequence" {
-  description = "Two-digit resource sequence number."
-  type        = string
-  default     = "01"
-
-  validation {
-    condition     = can(regex("^[0-9]{2}$", var.sequence))
-    error_message = "Sequence must contain exactly two digits, such as 01."
-  }
-}
-
 # SSH public key used when provisioning the agent VM.
 variable "agent_admin_ssh_public_key" {
   description = "SSH public key for the Azure DevOps agent VM administrator."

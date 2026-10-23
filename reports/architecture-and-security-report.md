@@ -40,6 +40,7 @@ The current design contains the following components:
 | Agent subnet | `snet-agents`, `10.0.2.64/26` | Hosts private self-hosted agent |
 | Agent VM | `vm-agent-poc-uaen-01`, private IP `10.0.2.68` | Runs Terraform Plan/Apply jobs |
 | Agent NSG | `nsg-agents-poc-uaen-01` | Restricts inbound and outbound network flows |
+| Agent outbound NAT | `nat-agents-poc-uaen-01` and `pip-nat-agents-poc-uaen-01` | Provides outbound translation for the agent subnet; the VM has no directly assigned public IP |
 | State account | `sttfstatepocuaen7261` | Terraform remote state storage |
 | Private Endpoint | `pe-tfstate-blob-poc-uaen-01` | Private connection to Blob service |
 | Private DNS zone | `privatelink.blob.core.windows.net` | Resolves Blob endpoint to private IP |
@@ -67,9 +68,9 @@ The spoke VNet uses `10.1.0.0/22` and includes:
 - `snet-web` — `10.1.0.0/24`
 - `snet-app` — `10.1.1.0/24`
 
-Hub-spoke peering connects the network layers. NSGs are applied to workload and agent subnets. The agent VM has no public IP address. The agent NSG evidence showed a `Deny-All-Inbound` rule at priority 4000 and an outbound HTTPS rule allowing TCP 443 to `Any` at priority 100.
+Hub-spoke peering connects the network layers. NSGs are applied to workload and agent subnets. The agent VM has no directly assigned public IP address; its subnet is associated with a NAT Gateway and Standard static public IP for outbound internet connectivity. The agent NSG evidence showed a `Deny-All-Inbound` rule at priority 4000 and an outbound HTTPS rule allowing TCP 443 to `Any` at priority 100.
 
-**Security note:** The broad outbound HTTPS rule is a known hardening opportunity. Required Azure DevOps, Azure Resource Manager, Storage, package-feed, and agent dependencies should be inventoried before restricting egress.
+**Security note:** NAT provides address translation, not destination filtering. The broad outbound HTTPS rule is a known hardening opportunity. Required Azure DevOps, Azure Resource Manager, Storage, package-feed, and agent dependencies should be inventoried before restricting egress.
 
 ## 5. Terraform State and Private Connectivity
 
@@ -115,7 +116,7 @@ The intended workflow has these stages:
 
 A run after the state account's public network access was disabled completed with Validate, Plan, approval, and Apply green. Plan and Apply used the `pool-poc-vnet` pool and `vm-agent-poc-uaen-01`.
 
-The GitHub portfolio copy pins the Validate image to `ubuntu-24.04` in commit `53b53ec`. This change was made in the portfolio repository only; it did not update the live Azure Repos pipeline in `D:\Bespin\D1`. The portfolio YAML includes placeholders and must not be copied into the live pipeline without replacing and reviewing those values.
+The GitHub portfolio copy pins the Validate image to `ubuntu-24.04` in commit `53b53ec`. This change was made in the portfolio repository only; it did not update the live Azure Repos pipeline. The portfolio YAML includes placeholders and must not be copied into the live pipeline without replacing and reviewing those values.
 
 ## 8. Agent Security Posture
 

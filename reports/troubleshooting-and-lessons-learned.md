@@ -41,7 +41,7 @@ A pipeline run showed the hosted validation job using `ubuntu-latest`, accompani
 In the GitHub portfolio copy, `azure-pipelines.yml` was changed to pin the image to `ubuntu-24.04`. The change was committed as `53b53ec` (`Pin Terraform validation to Ubuntu 24.04`) and pushed to the GitHub portfolio repository.
 
 ### Boundary of the change
-This change affects the portfolio copy at `D:\Bespin\azure-landing-zone-poc`. It did not change the live Azure Repos pipeline under `D:\Bespin\D1`. The portfolio YAML includes placeholder values and must not be copied into the live pipeline without deliberate review.
+This change affects the GitHub portfolio repository only. It did not change the live Azure Repos pipeline. The portfolio YAML includes placeholder values and must not be copied into the live pipeline without deliberate review.
 
 ### Follow-up
 If pinning the live pipeline is in scope, treat that as a separate change: update the live source, validate its diff, run the pipeline, and retain job details showing the selected image.

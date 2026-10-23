@@ -4,7 +4,7 @@
 ![Terraform](https://img.shields.io/badge/Infrastructure_as_Code-Terraform-7B42BC?logo=terraform&logoColor=white)
 ![Engagement](https://img.shields.io/badge/Engagement-Technical_POC-198754)
 
-A professional proof of concept (POC) demonstrating a reusable, Terraform-managed Azure hub-and-spoke network foundation. The implementation focuses on network segmentation, controlled connectivity, infrastructure-as-code practices, secure remote state, resource governance, and drift reconciliation.
+A proof of concept (POC) demonstrating a Terraform-managed Azure hub-and-spoke network foundation. The current implementation focuses on network segmentation, controlled connectivity, infrastructure-as-code practices, and secure remote state. Governance and scheduled drift detection remain future work in the project roadmap.
 
 > **POC scope:** This implementation establishes the network foundation and security policy boundaries. Azure Firewall and Azure Bastion subnets are reserved for potential future deployment; the corresponding services and associated workloads are not included in the current scope.
 
@@ -99,6 +99,7 @@ The implementation uses a hub-and-spoke design to separate shared infrastructure
 
 * The **hub virtual network** contains shared infrastructure subnets, the self-hosted agent subnet, and the private endpoint subnet.
 * The **spoke virtual network** contains application and web workload subnets.
+* A NAT Gateway provides outbound internet connectivity for the agent subnet. The agent VM itself has no public IP address; outbound connections use the NAT Gateway's associated public IP.
 * Azure Storage provides the Terraform remote state backend.
 * A private endpoint provides private network connectivity to the Blob service.
 * Private DNS provides name resolution for the storage private endpoint.
@@ -178,6 +179,8 @@ The self-hosted agent subnet has an inbound rule named `Deny-All-Inbound`, with 
 
 An outbound HTTPS rule named `Allow-Outbound-HTTPS`, with priority `100`, permits TCP port 443 to the configured destination scope.
 
+The agent subnet is associated with a NAT Gateway and a Standard static public IP for outbound translation. This provides outbound internet connectivity without assigning a public IP directly to the agent VM. The NAT Gateway does not restrict destinations; the broad HTTPS NSG rule remains an egress-hardening gap.
+
 > **Security consideration:** An outbound HTTPS allow rule is not, by itself, a complete egress security strategy. Allowing TCP 443 to `Any` does not restrict the destination to trusted services. Destination restrictions, required service dependencies, DNS, routing, and the implications for agent connectivity should be assessed as part of the egress-hardening phase.
 
 ### 4.4 Network Validation
@@ -203,7 +206,7 @@ Terraform is used to define and manage the Azure infrastructure.
 ### Engineering Practices
 
 * Maintain infrastructure configuration in version control.
-* Use reusable variables rather than hardcoding environment-specific values throughout the configuration.
+* The reusable VNet module accepts network configuration as inputs. The root POC currently uses fixed, project-specific resource names; changing the region or environment inputs does not rename those resources.
 * Separate backend configuration from the primary infrastructure configuration.
 * Validate Terraform configuration before planning changes.
 * Review saved plans before applying infrastructure changes.

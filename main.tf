@@ -159,7 +159,7 @@ resource "azurerm_virtual_network_peering" "spoke_to_hub" {
 }
 
 # ------------------------------------------------------------
-# Phase 2 — NAT Gateway Public IP
+# Agent subnet outbound NAT — Public IP
 # Purpose: Provide a stable outbound public IP for the agent subnet.
 # ------------------------------------------------------------
 
@@ -177,7 +177,7 @@ resource "azurerm_public_ip" "nat_agents" {
 }
 
 # ------------------------------------------------------------
-# Phase 2 — Agent Subnet NAT Gateway
+# Agent subnet outbound NAT — NAT Gateway
 # Purpose: Provide explicit outbound connectivity for the agent subnet.
 # ------------------------------------------------------------
 
@@ -197,7 +197,7 @@ resource "azurerm_nat_gateway" "agents" {
 }
 
 # ------------------------------------------------------------
-# Phase 2 — NAT Gateway Public IP Association
+# Agent subnet outbound NAT — Public IP Association
 # Purpose: Assign the static public IP to the NAT Gateway.
 # ------------------------------------------------------------
 
@@ -207,7 +207,7 @@ resource "azurerm_nat_gateway_public_ip_association" "agents" {
 }
 
 # ------------------------------------------------------------
-# Phase 2 — Agent Subnet NAT Gateway Association
+# Agent subnet outbound NAT — Subnet Association
 # Purpose: Provide outbound NAT for snet-agents.
 # ------------------------------------------------------------
 

@@ -70,5 +70,5 @@ The evidence IDs refer to screenshots, logs and command outputs described during
 
 - Do not commit Terraform state, saved plan files, private keys, PATs, access tokens, or unredacted pipeline logs.
 - Redact sensitive tenant/subscription details and internal identifiers before publishing screenshots.
-- The GitHub portfolio copy at `D:\Bespin\azure-landing-zone-poc` is separate from the live Azure Repos project at `D:\Bespin\D1`.
+- The GitHub portfolio repository is separate from the live Azure Repos project. The pipeline configuration in this repository is a portfolio example and does not update the live Azure Repos pipeline.
 - Update statuses only after the evidence artifact is saved and the closure condition is satisfied.
