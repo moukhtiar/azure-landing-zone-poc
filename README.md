@@ -25,7 +25,26 @@ The project follows an evidence-driven engineering approach: implement, validate
 | **Next Planned Stage**     | Stage 3 — Centralized Monitoring & Security Logging       |
 | **Delivery Method**        | Incremental implementation with evidence-based acceptance |
 
-<br>
+
+---
+
+# 🏗️ Landing Zone Architecture
+
+The following diagram illustrates the Azure landing zone's hub-and-spoke network foundation.
+
+<p align="center">
+  <img src="docs/azure-landing-zone-topology.png" alt="Azure Landing Zone hub-and-spoke network topology" width="900">
+</p>
+
+<details>
+<summary>View the SVG version</summary>
+
+![Azure Landing Zone topology](docs/azure-landing-zone-topology.svg)
+
+</details>
+
+---
+
 
 # 🗺️ Project Roadmap
 
@@ -219,6 +238,20 @@ The bootstrap configuration is intentionally separate from the root network conf
 ---
 
 # ⚙️ Deployment Workflow
+The following diagram illustrates the Terraform infrastructure deployment workflow.
+
+<p align="center">
+  <img src="docs/terraform-pipeline-workflow.png" alt="Terraform pipeline workflow" width="900">
+</p>
+
+<details>
+<summary>View the SVG version</summary>
+
+![Terraform pipeline workflow](docs/terraform-pipeline-workflow.svg)
+
+</details>
+
+---
 
 ## Prerequisites
 
