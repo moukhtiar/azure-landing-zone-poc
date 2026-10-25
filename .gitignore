@@ -30,3 +30,10 @@ terraform.rc
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Disposable SSH hardening test artifacts
+tests/ssh-hardening-vm/terraform.tfstate
+tests/ssh-hardening-vm/terraform.tfstate.backup
+tests/ssh-hardening-vm/terraform.tfvars
+tests/ssh-hardening-vm/terraform.tfvars.json
+tests/ssh-hardening-vm/.terraform/

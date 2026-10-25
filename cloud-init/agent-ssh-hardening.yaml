@@ -1,0 +1,28 @@
+#cloud-config
+
+# PE-02 - SSH Security Baseline
+# Purpose:
+# Apply SSH authentication hardening during initial VM provisioning.
+#
+# This test configuration deliberately leaves the SSH service state unchanged.
+# Service disablement will be tested separately.
+
+write_files:
+  - path: /etc/ssh/sshd_config.d/00-poc-hardening.conf
+    owner: root:root
+    permissions: '0644'
+    content: |
+      PermitRootLogin no
+      PubkeyAuthentication yes
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+
+runcmd:
+  # Ensure the SSH runtime directory exists.
+  - [ install, -d, -m, '0755', /run/sshd ]
+
+  # Validate SSH configuration syntax.
+  - [ bash, -c, 'sshd -t' ]
+
+  # Verify the effective authentication settings.
+  - [ bash, -c, 'sshd -T | grep -E "^(permitrootlogin|pubkeyauthentication|passwordauthentication|kbdinteractiveauthentication) "' ]
