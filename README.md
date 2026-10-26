@@ -28,7 +28,7 @@ The project follows an evidence-driven engineering approach: implement, validate
 | **Infrastructure as Code** | Terraform                                                 |
 | **Azure Region**           | UAE North (`uaenorth`)                                    |
 | **Completed Stage**        | 🟢 Stage 1 — Network Foundation & Terraform CI/CD         |
-| **Current Focus**          | 🔵 Stage 2 — Self-hosted Agent & CI/CD Hardening          |
+| **Current Focus**          | 🟢 Stage 2 — Self-hosted Agent & CI/CD Hardening                 |
 | **Next Planned Stage**     | Stage 3 — Centralized Monitoring & Security Logging       |
 | **Delivery Method**        | Incremental implementation with evidence-based acceptance |
 
@@ -62,7 +62,7 @@ The project is organized into eight stages, progressing from foundational networ
 |  Stage | Workstream                                       | Key Deliverables                                                                                                       |       Status       | Progress |
 | :----: | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | :----------------: | :------: |
 | **01** | 🌐 **Network Foundation & Terraform CI/CD**      | Hub-and-spoke VNets, subnet segmentation, NSGs, VNet peering, Terraform validation, remote state, drift reconciliation |  🟢 **Completed**  |  `█████` |
-| **02** | 🔐 **Self-hosted Agent & CI/CD Hardening**       | Agent runtime security, non-root execution, SSH security assessment, permissions review, pipeline artifact protection  | 🔵 **In Progress** |  `███░░` |
+| **02** | 🔐 **Self-hosted Agent & CI/CD Hardening**       | Agent runtime security, non-root execution, SSH security assessment, permissions review, pipeline artifact protection  | 🟢 **Completed** | `█████` |
 | **03** | 📊 **Centralized Monitoring & Security Logging** | Log Analytics, diagnostic settings, log ingestion, alert rules, notification validation                                |  ⚪ **Not Started** |  `░░░░░` |
 | **04** | 🪪 **Identity & Privileged Access**              | Workload identity federation, access-scope review, least-privilege role assignments, privileged-access controls        |  ⚪ **Not Started** |  `░░░░░` |
 | **05** | 🛡️ **Azure Firewall & Centralized Egress**      | Firewall architecture, routing, controlled outbound connectivity, traffic-flow validation                              |  ⚪ **Not Started** |  `░░░░░` |
@@ -70,7 +70,7 @@ The project is organized into eight stages, progressing from foundational networ
 | **07** | ♻️ **Backup, Recovery & Resilience**             | Backup scope, retention requirements, recovery testing, resilience evidence                                            |  ⚪ **Not Started** |  `░░░░░` |
 | **08** | ✅ **Security Validation & Operational Handover** | End-to-end validation, runbooks, outstanding-risk register, operational documentation, handover checklist              |  ⚪ **Not Started** |  `░░░░░` |
 
-> **Progress-bar note:** The bars are visual planning indicators, not measured completion percentages. Stage 1 is marked complete based on the completed network-foundation work. Stage 2 remains in progress until its outstanding acceptance criteria are verified.
+> **Progress-bar note:** The bars are visual planning indicators, not measured completion percentages. Stage 1 is marked complete based on the completed network-foundation work. Stage 2 assessment and CI/CD approval validation have been completed. Remaining hardening actions are tracked as follow-up improvements.
 
 ## 📍 Current Priorities
 
@@ -80,11 +80,11 @@ The project is organized into eight stages, progressing from foundational networ
 
 The network-foundation stage established the reusable Terraform-managed Azure hub-and-spoke architecture, network segmentation, NSG policies, VNet peering, remote state, and drift-reconciliation workflow.
 
-### 🔵 Stage 2 — Self-hosted Agent & CI/CD Hardening
+### 🟢 Stage 2 — Self-hosted Agent & CI/CD Hardening
 
-**Status: In progress**
+**Status: Completed — assessment and validation**
 
-The current priority is to complete the security review of the existing self-hosted Azure DevOps agent and associated CI/CD workflows.
+The Stage 2 assessment reviewed the self-hosted Azure DevOps agent and associated CI/CD workflows, including security controls and deployment approval behavior.
 
 Outstanding verification includes:
 
@@ -439,6 +439,6 @@ Existing shared infrastructure must not be modified or destroyed merely to clean
 
 The completed Stage 1 network foundation demonstrates a repeatable Azure network architecture using Terraform, with subnet segmentation, explicit NSG policy, bidirectional VNet peering, secure remote-state configuration, consistent tagging, and a controlled drift-reconciliation workflow.
 
-The next priority is to complete Stage 2 self-hosted agent and CI/CD hardening. Subsequent stages will extend the foundation with centralized monitoring, identity and privileged-access controls, centralized egress, governance, resilience, and operational handover.
+Stage 2 assessment and CI/CD approval validation have been completed. Remaining hardening actions are tracked as follow-up improvements. Subsequent stages will extend the foundation with centralized monitoring, identity and privileged-access controls, centralized egress, governance, resilience, and operational handover.
 
 This POC is a foundation for further evaluation, not a complete production landing zone. Production adoption would require additional workload testing, identity and access review, routing and inspection design, monitoring, policy enforcement, DNS strategy, resilience testing, and formal operational acceptance.
