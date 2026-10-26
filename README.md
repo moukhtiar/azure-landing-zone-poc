@@ -27,9 +27,9 @@ The project follows an evidence-driven engineering approach: implement, validate
 | **Cloud Platform**         | Microsoft Azure                                           |
 | **Infrastructure as Code** | Terraform                                                 |
 | **Azure Region**           | UAE North (`uaenorth`)                                    |
-| **Completed Stage**        | 🟢 Stage 1 — Network Foundation & Terraform CI/CD         |
-| **Current Focus**          | 🟢 Stage 2 — Self-hosted Agent & CI/CD Hardening                 |
-| **Next Planned Stage**     | Stage 3 — Centralized Monitoring & Security Logging       |
+| **Completed Stage**        | 🟢 Stage 2 — Self-hosted Agent & CI/CD Hardening             |
+| **Current Focus**          | 🟢 Stage 3 — Centralized Monitoring & Security Logging          |
+| **Next Planned Stage**     | Stage 4 — Identity & Privileged Access                         |
 | **Delivery Method**        | Incremental implementation with evidence-based acceptance |
 
 
@@ -86,15 +86,7 @@ The network-foundation stage established the reusable Terraform-managed Azure hu
 
 The Stage 2 assessment reviewed the self-hosted Azure DevOps agent and associated CI/CD workflows, including security controls and deployment approval behavior.
 
-Outstanding verification includes:
-
-* Confirming the agent's runtime identity and non-root execution.
-* Reviewing the current SSH service state and authentication configuration.
-* Reviewing agent version and update considerations.
-* Verifying the agent's permissions and relevant Azure role assignments.
-* Reviewing pipeline artifact handling and sensitive-file exposure.
-* Recording the results against the relevant acceptance criteria.
-
+Remaining security hardening and access-control improvements are tracked as follow-up work.
 A disposable VM was used to validate SSH authentication hardening. That test does not, by itself, prove that the existing agent VM has been hardened or that every Stage 2 requirement is satisfied.
 
 ### ⚪ Stage 3 — Centralized Monitoring & Security Logging
