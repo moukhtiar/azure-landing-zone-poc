@@ -27,7 +27,7 @@ The project follows an evidence-driven engineering approach: implement, validate
 | **Cloud Platform**         | Microsoft Azure                                           |
 | **Infrastructure as Code** | Terraform                                                 |
 | **Azure Region**           | UAE North (`uaenorth`)                                    |
-| **Completed Stage**        | 🟢 Stage 2 — Self-hosted Agent & CI/CD Hardening             |
+| **Completed Stages**       | 🟢 Stage 1 — Network Foundation & Terraform CI/CD; Stage 2 — Self-hosted Agent & CI/CD Hardening |
 | **Current Focus**          | 🟢 Stage 3 — Centralized Monitoring & Security Logging          |
 | **Next Planned Stage**     | Stage 4 — Identity & Privileged Access                         |
 | **Delivery Method**        | Incremental implementation with evidence-based acceptance |
