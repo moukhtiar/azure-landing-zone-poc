@@ -21,20 +21,18 @@ The project follows an evidence-driven engineering approach: implement, validate
 
 # 📊 Project Dashboard
 
-| Project Information        | Current Position                                          |
-| -------------------------- | --------------------------------------------------------- |
-| **Project**                | Azure Landing Zone POC                                    |
-| **Cloud Platform**         | Microsoft Azure                                           |
-| **Infrastructure as Code** | Terraform                                                 |
-| **Azure Region**           | UAE North (`uaenorth`)                                    |
-| **Completed Stages**       | 🟢 Stage 1 — Network Foundation & Terraform CI/CD; Stage 2 — Self-hosted Agent & CI/CD Hardening |
-| **Current Focus**          | 🟢 Stage 3 — Centralized Monitoring & Security Logging          |
-| **Next Planned Stage**     | Stage 4 — Identity & Privileged Access                         |
-| **Delivery Method**        | Incremental implementation with evidence-based acceptance |
-
+| Project Information | Current Position |
+|---|---|
+| **Project** | Azure Landing Zone POC |
+| **Cloud Platform** | Microsoft Azure |
+| **Infrastructure as Code** | Terraform |
+| **Azure Region** | UAE North (`uaenorth`) |
+| **Completed Stages** | 🟢 Stage 1 — Network Foundation & Terraform CI/CD; Stage 2 — Self-hosted Agent & CI/CD Hardening |
+| **Current Focus** | 🟠 Stage 3 — Centralized Monitoring & Security Logging |
+| **Next Planned Stage** | Stage 4 — Identity & Privileged Access |
+| **Delivery Method** | Incremental implementation with evidence-based acceptance |
 
 ---
-
 # 🏗️ Landing Zone Architecture
 
 The following diagram illustrates the Azure landing zone's hub-and-spoke network foundation.
@@ -63,7 +61,7 @@ The project is organized into eight stages, progressing from foundational networ
 | :----: | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | :----------------: | :------: |
 | **01** | 🌐 **Network Foundation & Terraform CI/CD**      | Hub-and-spoke VNets, subnet segmentation, NSGs, VNet peering, Terraform validation, remote state, drift reconciliation |  🟢 **Completed**  |  `█████` |
 | **02** | 🔐 **Self-hosted Agent & CI/CD Hardening**       | Agent runtime security, non-root execution, SSH security assessment, permissions review, pipeline artifact protection  | 🟢 **Completed** | `█████` |
-| **03** | 📊 **Centralized Monitoring & Security Logging** | Log Analytics, diagnostic settings, log ingestion, alert rules, notification validation                                |  ⚪ **Not Started** |  `░░░░░` |
+| **03** | 📊 **Centralized Monitoring & Security Logging** | Log Analytics, diagnostic settings, log ingestion, alert rules, notification validation                                |  🟠 **In Progress** |  `░░░░░` |
 | **04** | 🪪 **Identity & Privileged Access**              | Workload identity federation, access-scope review, least-privilege role assignments, privileged-access controls        |  ⚪ **Not Started** |  `░░░░░` |
 | **05** | 🛡️ **Azure Firewall & Centralized Egress**      | Firewall architecture, routing, controlled outbound connectivity, traffic-flow validation                              |  ⚪ **Not Started** |  `░░░░░` |
 | **06** | 📋 **Governance & Policy Enforcement**           | Azure Policy initiatives, assignments, resource governance, compliance evaluation                                      |  ⚪ **Not Started** |  `░░░░░` |
@@ -89,7 +87,7 @@ The Stage 2 assessment reviewed the self-hosted Azure DevOps agent and associate
 Remaining security hardening and access-control improvements are tracked as follow-up work.
 A disposable VM was used to validate SSH authentication hardening. That test does not, by itself, prove that the existing agent VM has been hardened or that every Stage 2 requirement is satisfied.
 
-### ⚪ Stage 3 — Centralized Monitoring & Security Logging
+### 🟠 Stage 3 — Centralized Monitoring & Security Logging
 
 **Planned scope**
 
