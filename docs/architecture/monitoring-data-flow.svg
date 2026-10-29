@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="650" viewBox="0 0 1000 650">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#0078D4"></path>
+    </marker>
+    <style>
+      .title { font: bold 27px Arial, sans-serif; fill: #17324D; }
+      .subtitle { font: 15px Arial, sans-serif; fill: #52677A; }
+      .heading { font: bold 19px Arial, sans-serif; fill: #17324D; }
+      .body { font: 15px Arial, sans-serif; fill: #17324D; }
+      .small { font: 13px Arial, sans-serif; fill: #52677A; }
+      .box { stroke-width: 2; rx: 14; }
+      .arrow { fill: none; stroke: #0078D4; stroke-width: 3; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1000" height="650" fill="#F5F8FC"></rect>
+
+  <text x="50" y="52" class="title">Azure Landing Zone POC</text>
+  <text x="50" y="80" class="subtitle">Centralized monitoring and diagnostic data flow</text>
+
+  <rect x="45" y="115" width="420" height="190" class="box" fill="#E8F3FF" stroke="#0078D4"></rect>
+  <text x="70" y="150" class="heading">Azure Subscription</text>
+
+  <rect x="70" y="175" width="370" height="100" class="box" fill="#FFFFFF" stroke="#8AB9E6"></rect>
+  <text x="90" y="205" class="body">Subscription Activity Logs</text>
+  <text x="90" y="231" class="small">Administrative • Security • Policy</text>
+  <text x="90" y="253" class="small">Service Health • Alerts • Other categories</text>
+
+  <rect x="535" y="115" width="420" height="190" class="box" fill="#FFF4DF" stroke="#C58B16"></rect>
+  <text x="560" y="150" class="heading">Terraform State Storage</text>
+
+  <rect x="560" y="175" width="370" height="100" class="box" fill="#FFFFFF" stroke="#D8B46C"></rect>
+  <text x="580" y="205" class="body">Blob Service</text>
+  <text x="580" y="231" class="small">StorageRead • StorageWrite</text>
+  <text x="580" y="253" class="small">StorageDelete</text>
+
+  <path d="M255 305 L255 365 L430 365 L430 405" class="arrow"></path>
+  <path d="M745 305 L745 365 L570 365 L570 405" class="arrow"></path>
+
+  <text x="500" y="348" text-anchor="middle" class="small">
+    Azure Monitor diagnostic settings
+  </text>
+
+  <rect x="255" y="405" width="490" height="145" class="box" fill="#E5F6EC" stroke="#168653"></rect>
+  <text x="500" y="442" text-anchor="middle" class="heading">
+    Log Analytics Workspace
+  </text>
+  <text x="500" y="470" text-anchor="middle" class="body">
+    Central log collection and investigation
+  </text>
+  <text x="500" y="499" text-anchor="middle" class="small">
+    StorageBlobLogs • AzureActivity
+  </text>
+  <text x="500" y="523" text-anchor="middle" class="small">
+    KQL queries and future monitoring workbooks
+  </text>
+
+  <text x="500" y="592" text-anchor="middle" class="small">
+    Conceptual data flow — not a network topology
+  </text>
+  <text x="500" y="615" text-anchor="middle" class="small">
+    POC scope: subscription Activity Logs and Terraform state Blob diagnostics
+  </text>
+</svg>
