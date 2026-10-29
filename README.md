@@ -1,433 +1,406 @@
 # ☁️ Azure Landing Zone POC
 
 <p align="left">
-  <img src="https://img.shields.io/badge/Azure-0078D4?style=flat&logo=microsoftazure&logoColor=white" alt="Microsoft Azure">
+  <img src="https://img.shields.io/badge/Microsoft_Azure-0078D4?style=flat&logo=microsoftazure&logoColor=white" alt="Microsoft Azure">
   <img src="https://img.shields.io/badge/Terraform-844FBA?style=flat&logo=terraform&logoColor=white" alt="Terraform">
-    <img src="https://img.shields.io/badge/Azure_DevOps-0078D7?style=flat&logo=azuredevops&logoColor=white" alt="Azure DevOps">
+  <img src="https://img.shields.io/badge/Azure_DevOps-0078D7?style=flat&logo=azuredevops&logoColor=white" alt="Azure DevOps">
   <img src="https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white" alt="Git">
   <img src="https://img.shields.io/badge/PowerShell-5391FE?style=flat&logo=powershell&logoColor=white" alt="PowerShell">
 </p>
 
+A hands-on Microsoft Azure Landing Zone proof of concept focused on secure network foundations, Terraform-b
+ased infrastructure management, controlled CI/CD workflows, and progressive cloud security hardening.
 
+The project follows an evidence-driven engineering approach:
 
+**Implement → Validate → Document → Review → Improve**
 
-A hands-on Azure Landing Zone proof of concept demonstrating secure network foundations, Terraform-based infrastructure management, controlled CI/CD workflows, and progressive security hardening.
+Each stage builds on the previous one, with implementation status and known limitations documented explicitly.
 
-The project follows an evidence-driven engineering approach: implement, validate, document, and review each stage before advancing to the next.
+> **Project scope:** This is a phased proof of concept (POC), not a claim that every capability of a production Azure Landing Zone has been implemented. Completed work, ongoing activities, and planned capabilities are distinguished throughout this repository.
 
-> **Project scope:** This is a phased proof of concept, not a claim that every capability of a production Azure Landing Zone has already been implemented. The roadmap distinguishes completed work from ongoing and planned activities.
+---
+
+## 📊 Project Status
+
+| Area                                        | Current status                                                |
+| ------------------------------------------- | ------------------------------------------------------------- |
+| Cloud platform                              | Microsoft Azure                                               |
+| Azure region                                | UAE North (`uaenorth`)                                        |
+| Infrastructure as Code                      | Terraform                                                     |
+| CI/CD platform                              | Azure DevOps                                                  |
+| Network foundation                          | Completed                                               |
+| Self-hosted agent and CI/CD hardening       | Assessment and validation completed; follow-up actions remain |
+| Centralized monitoring and security logging | In progress                                                   |
+| Next planned stage                          | Identity and privileged access                                |
+
+### Implementation Roadmap
+
+| Stage | Workstream                                 | Status                                 |
+| ----- | ------------------------------------------ | -------------------------------------- |
+| 01    | Network Foundation & Terraform CI/CD       | 🟢 Completed                           |
+| 02    | Self-hosted Agent & CI/CD Hardening        | 🟢 Assessment and validation completed |
+| 03    | Centralized Monitoring & Security Logging  | 🟠 In progress                         |
+| 04    | Identity & Privileged Access               | ⚪ Planned                              |
+| 05    | Azure Firewall & Centralized Egress        | ⚪ Planned                              |
+| 06    | Governance & Policy Enforcement            | ⚪ Planned                              |
+| 07    | Backup, Recovery & Resilience              | ⚪ Planned                              |
+| 08    | Security Validation & Operational Handover | ⚪ Planned                              |
+
+**Status definitions**
+
+* **Completed:** The defined stage scope has been completed based on the documented implementation and acceptance evidence.
+* **In progress:** Implementation or validation remains outstanding.
+* **Planned:** Work has not yet started.
+
+Stage 2 completion refers to the assessment and validation work performed. Remaining hardening and access-control improvements are tracked as follow-up activities.
+
+The roadmap is updated as implementation and acceptance evidence become available.
 
 ---
 
-# 📊 Project Dashboard
+## 🏗️ Architecture Overview
 
-| Project Information | Current Position |
-|---|---|
-| **Project** | Azure Landing Zone POC |
-| **Cloud Platform** | Microsoft Azure |
-| **Infrastructure as Code** | Terraform |
-| **Azure Region** | UAE North (`uaenorth`) |
-| **Current Focus** | 🟠 Stage 3 — Centralized Monitoring & Security Logging |
-| **Next Planned Stage** | Stage 4 — Identity & Privileged Access |
-| **Delivery Method** | Incremental implementation with evidence-based acceptance |
+The POC uses a **hub-and-spoke network topology** to separate shared network infrastructure from workload subnet boundaries.
 
----
-# 🏗️ Landing Zone Architecture
-
-The following diagram illustrates the Azure landing zone's hub-and-spoke network foundation.
+The hub provides shared networking locations, a subnet for the Terraform state private endpoint, and a subnet for the self-hosted Azure DevOps agent. The spoke separates web and application tiers into dedicated subnets.
 
 <p align="center">
-  <img src="docs/azure-landing-zone-topology.png" alt="Azure Landing Zone hub-and-spoke network topology" width="900">
+  <img src="docs/azure-landing-zone-topology.png" alt="Azure Landing Zone POC hub-and-spoke network topology" width="900">
 </p>
 
 <details>
-<summary>View the SVG version</summary>
+<summary>View the SVG topology diagram</summary>
 
 ![Azure Landing Zone topology](docs/azure-landing-zone-topology.svg)
 
 </details>
 
----
+For a more detailed view of the implemented network architecture, see the [VNet topology diagram](docs/architecture/vnet-topology-poc.png).
 
+### Network Address Plan
 
-# 🗺️ Project Roadmap
+| Component                 | Resource name            | Address range  |
+| ------------------------- | ------------------------ | -------------- |
+| Hub VNet                  | `vnet-hub-poc-uaen-01`   | `10.0.0.0/22`  |
+| Reserved firewall subnet  | `AzureFirewallSubnet`    | `10.0.0.0/26`  |
+| Reserved Bastion subnet   | `AzureBastionSubnet`     | `10.0.0.64/26` |
+| Shared hub subnet         | `snet-hub-shared`        | `10.0.1.0/24`  |
+| Private endpoint subnet   | `snet-pe`                | `10.0.2.0/26`  |
+| Azure DevOps agent subnet | `snet-agents`            | `10.0.2.64/26` |
+| Spoke VNet                | `vnet-spoke-poc-uaen-01` | `10.1.0.0/22`  |
+| Web subnet                | `snet-web`               | `10.1.0.0/24`  |
+| Application subnet        | `snet-app`               | `10.1.1.0/24`  |
 
-The project is organized into eight stages, progressing from foundational networking to security operations and operational handover.
+### Network Security
 
-##  Implementation Progress
+The web and application subnets have separate Network Security Groups (NSGs).
 
-|  Stage | Workstream                                       | Key Deliverables                                                                                                       |       Status       | Progress |
-| :----: | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | :----------------: | :------: |
-| **01** | 🌐 **Network Foundation & Terraform CI/CD**      | Hub-and-spoke VNets, subnet segmentation, NSGs, VNet peering, Terraform validation, remote state, drift reconciliation |  🟢 **Completed**  |  `█████` |
-| **02** | 🔐 **Self-hosted Agent & CI/CD Hardening**       | Agent runtime security, non-root execution, SSH security assessment, permissions review, pipeline artifact protection  | 🟢 **Completed** | `█████` |
-| **03** | 📊 **Centralized Monitoring & Security Logging** | Log Analytics, diagnostic settings, log ingestion, alert rules, notification validation                                |  🟠 **In Progress** |  `░░░░░` |
-| **04** | 🪪 **Identity & Privileged Access**              | Workload identity federation, access-scope review, least-privilege role assignments, privileged-access controls        |  ⚪ **Not Started** |  `░░░░░` |
-| **05** | 🛡️ **Azure Firewall & Centralized Egress**      | Firewall architecture, routing, controlled outbound connectivity, traffic-flow validation                              |  ⚪ **Not Started** |  `░░░░░` |
-| **06** | 📋 **Governance & Policy Enforcement**           | Azure Policy initiatives, assignments, resource governance, compliance evaluation                                      |  ⚪ **Not Started** |  `░░░░░` |
-| **07** | ♻️ **Backup, Recovery & Resilience**             | Backup scope, retention requirements, recovery testing, resilience evidence                                            |  ⚪ **Not Started** |  `░░░░░` |
-| **08** | ✅ **Security Validation & Operational Handover** | End-to-end validation, runbooks, outstanding-risk register, operational documentation, handover checklist              |  ⚪ **Not Started** |  `░░░░░` |
+| NSG                   | Rule                                      | Behavior                                                      |
+| --------------------- | ----------------------------------------- | ------------------------------------------------------------- |
+| `nsg-web-poc-uaen-01` | `Deny-All-Inbound`, priority 4000         | Explicitly denies inbound traffic                             |
+| `nsg-app-poc-uaen-01` | `Allow-Web-To-App-TCP-8080`, priority 100 | Allows TCP 8080 from the web subnet to the application subnet |
+| `nsg-app-poc-uaen-01` | `Deny-All-Inbound`, priority 4000         | Explicitly denies other inbound traffic                       |
 
-> **Progress-bar note:** The bars are visual planning indicators, not measured completion percentages. Stage 1 is marked complete based on the completed network-foundation work. Stage 2 assessment and CI/CD approval validation have been completed. Remaining hardening actions are tracked as follow-up improvements.
+The application allow rule has a lower numerical priority than the explicit deny rule, so it is evaluated first.
 
-## 📍 Current Priorities
+Both hub-to-spoke and spoke-to-hub peering resources are configured. Forwarded traffic is allowed on both peerings, and gateway transit is enabled on the hub-to-spoke peering.
 
-### 🟢 Stage 1 — Network Foundation & Terraform CI/CD
-
-**Status: Completed**
-
-The network-foundation stage established the reusable Terraform-managed Azure hub-and-spoke architecture, network segmentation, NSG policies, VNet peering, remote state, and drift-reconciliation workflow.
-
-### 🟢 Stage 2 — Self-hosted Agent & CI/CD Hardening
-
-**Status: Completed — assessment and validation**
-
-The Stage 2 assessment reviewed the self-hosted Azure DevOps agent and associated CI/CD workflows, including security controls and deployment approval behavior.
-
-Remaining security hardening and access-control improvements are tracked as follow-up work.
-A disposable VM was used to validate SSH authentication hardening. That test does not, by itself, prove that the existing agent VM has been hardened or that every Stage 2 requirement is satisfied.
-
-### 🟠 Stage 3 — Centralized Monitoring & Security Logging
-
-**Planned scope**
-
-* Establish the monitoring and diagnostic-settings strategy.
-* Configure appropriate Log Analytics ingestion.
-* Validate that expected resource logs arrive.
-* Implement relevant alerts and test notification delivery.
-* Document monitoring coverage and known gaps.
-
-### ⚪ Stage 4 — Identity & Privileged Access
-
-**Planned scope**
-
-* Review workload identity federation.
-* Validate service-connection authentication and access scope.
-* Review role assignments against least-privilege requirements.
-* Document privileged access and identity-related security controls.
-
-### ⚪ Stages 5–8 — Platform Security and Operational Readiness
-
-These stages will extend the foundation with centralized egress, governance, resilience, and operational acceptance.
-
-Each stage will be assessed against its own scope and acceptance evidence before its status is changed to completed.
+> **Architecture boundary:** The firewall and Bastion subnets are reserved locations, not evidence of deployed Azure Firewall or Azure Bastion resources. No virtual network gateway is included in the current network-foundation scope. VNet peering alone does not provide centralized firewall inspection or force traffic through a hub firewall.
 
 ---
 
-# 🏗️ Architecture
+## 🚀 Key Engineering Achievements
 
-The network design uses a hub-and-spoke model to separate shared network infrastructure from workload subnet boundaries.
+### 1. Reusable Terraform Networking
 
-The hub contains the network foundation and reserved subnet locations for potential future shared services. The spoke separates web and application tiers.
+* Created a reusable VNet module for hub and spoke networks.
+* Defined subnet address ranges and subnet-specific configuration through Terraform variables.
+* Separated network resource creation from NSG definitions and peering configuration.
+* Applied consistent resource naming and governance tags.
 
-**Traffic-flow consideration:** VNet peering provides private connectivity between VNets. It does not automatically route all traffic through Azure Firewall. Centralized inspection requires a deployed firewall or supported network appliance, appropriate routing, and policy configuration.
+### 2. Controlled Infrastructure Delivery
 
-## Network Address Plan
+* Established Terraform formatting and validation workflows.
+* Integrated infrastructure changes with Azure DevOps CI/CD.
+* Used a separate bootstrap configuration for the remote-state resources.
+* Implemented a gated deployment workflow for the main branch.
 
-### Hub Virtual Network
+### 3. Remote-State Security
 
-| Component              | CIDR           | Purpose                                            |
-| ---------------------- | -------------- | -------------------------------------------------- |
-| `vnet-hub-poc-uaen-01` | `10.0.0.0/22`  | Hub network                                        |
-| `AzureFirewallSubnet`  | `10.0.0.0/26`  | Reserved for a potential Azure Firewall deployment |
-| `AzureBastionSubnet`   | `10.0.0.64/26` | Reserved for a potential Azure Bastion deployment  |
-| `snet-hub-shared`      | `10.0.1.0/24`  | Shared-services subnet boundary                    |
+* Configured Azure Storage for Terraform remote state.
+* Disabled shared-key authorization and anonymous Blob access.
+* Configured HTTPS-only transport and a minimum TLS version of 1.2.
+* Enabled Blob versioning.
+* Implemented private endpoint connectivity for the Terraform state Blob service.
 
-### Spoke Virtual Network
+### 4. Drift Detection and Reconciliation
 
-| Component                | CIDR          | Purpose                 |
-| ------------------------ | ------------- | ----------------------- |
-| `vnet-spoke-poc-uaen-01` | `10.1.0.0/22` | Workload spoke          |
-| `snet-web`               | `10.1.0.0/24` | Web tier subnet         |
-| `snet-app`               | `10.1.1.0/24` | Application tier subnet |
+Performed a controlled infrastructure drift exercise:
 
-**Azure region:** UAE North (`uaenorth`)
+1. Added a tag manually to an application NSG in Azure.
+2. Used Terraform planning to detect the difference.
+3. Reviewed the proposed reconciliation.
+4. Applied the reviewed saved plan.
+5. Verified that the undeclared tag was removed.
+6. Confirmed that a subsequent plan reported no changes.
 
-## Network Security Policy
+This demonstrates a controlled configuration-reconciliation workflow for a resource-tag change.
 
-Separate NSGs are associated with the web and application subnets.
+### 5. Progressive Security Hardening
 
-| NSG                   | Priority | Rule                        | Behavior                                                      |
-| --------------------- | -------: | --------------------------- | ------------------------------------------------------------- |
-| `nsg-web-poc-uaen-01` |     4000 | `Deny-All-Inbound`          | Explicitly denies inbound traffic                             |
-| `nsg-app-poc-uaen-01` |      100 | `Allow-Web-To-App-TCP-8080` | Allows TCP 8080 from the web subnet to the application subnet |
-| `nsg-app-poc-uaen-01` |     4000 | `Deny-All-Inbound`          | Explicitly denies other inbound traffic                       |
+* Assessed the self-hosted Azure DevOps agent and associated CI/CD workflows.
+* Reviewed security controls, permissions, and deployment approval behavior.
+* Validated SSH authentication hardening in a disposable VM environment.
+* Tracked remaining hardening activities separately from completed validation.
 
-The application allow rule is evaluated before the explicit deny rule because it has a lower numerical priority.
-
-These NSGs define policy boundaries. The original network-foundation POC did not include application VMs, so the TCP 8080 rule was not tested against a live endpoint as part of that implementation.
-
-## VNet Peering
-
-Both peerings were verified as connected:
-
-* `peer-hub-to-spoke`
-* `peer-spoke-to-hub`
-
-Forwarded traffic is enabled on both peerings. Gateway transit is enabled on the hub-to-spoke peering only. Remote gateway use is disabled.
-
-No virtual network gateway deployment is included in the current network-foundation scope.
+The disposable VM test does not, by itself, establish that the existing agent VM has been hardened.
 
 ---
 
-# 🧱 Infrastructure as Code
+## 🧱 Infrastructure as Code
 
-Terraform is used to define and manage the network foundation and its supporting resources.
+Terraform is used to define and manage the network foundation and supporting infrastructure.
 
-## Original Network-Foundation Structure
+### Design Principles
+
+| Principle              | Implementation                                                       |
+| ---------------------- | -------------------------------------------------------------------- |
+| Reusability            | Shared VNet module for hub and spoke                                 |
+| Separation of concerns | Bootstrap, network, NSG, and supporting configurations are separated |
+| Consistency            | Centralized naming and common resource tags                          |
+| Repeatability          | Provider constraints and version-controlled lock files               |
+| State management       | Azure Storage remote backend                                         |
+| Change control         | Plan review and controlled application                               |
+| Drift management       | Detect, review, reconcile, and verify                                |
+
+### Repository Structure
+
+The repository contains the main project README, architecture diagrams, supporting documentation, and reusable Terraform modules.
 
 ```text
-pe-01-landing-zone/
+azure-landing-zone-poc/
+├── README.md
 ├── bootstrap/
-│   ├── main.tf
-│   ├── providers.tf
-│   ├── variables.tf
-│   ├── versions.tf
-│   ├── terraform.tfvars
-│   └── .terraform.lock.hcl
+├── docs/
+│   ├── azure-landing-zone-topology.png
+│   ├── azure-landing-zone-topology.svg
+│   ├── stage-2-summary.md
+│   ├── terraform-pipeline-workflow.png
+│   ├── terraform-pipeline-workflow.svg
+│   └── architecture/
+│       ├── azure-landing-zone-poc-architecture.png
+│       ├── monitoring-data-flow.svg
+│       └── vnet-topology-poc.png
 ├── modules/
-│   └── vnet/
-│       ├── main.tf
-│       ├── variables.tf
-│       └── outputs.tf
-├── .gitignore
-├── .terraform.lock.hcl
-├── locals.tf
+│   ├── vnet/
+│   │   └── README.md
+│   └── monitoring/
+│       └── README.md
 ├── main.tf
+├── locals.tf
 ├── nsg.tf
 ├── outputs.tf
 ├── providers.tf
-├── terraform.tfvars
 ├── variables.tf
 └── versions.tf
 ```
 
-This tree represents the original network-foundation structure, not an exhaustive listing of every subsequent project artifact.
+This is a high-level illustration, not an exhaustive listing of every repository file. Review the actual directory structure for the current implementation.
 
-## Key Design Decisions
+### Terraform Module Documentation
 
-* A reusable VNet module is called for both hub and spoke networks.
-* The bootstrap configuration provisions the storage resources required by the root backend and retains separate local state.
-* Root configuration manages the network resource group, VNets, peerings, NSGs, and subnet associations.
-* Common tags are defined centrally and applied to taggable resources.
-* Provider versions are constrained.
-* Provider lock files are version-controlled to support repeatable initialization.
+* [VNet module documentation](modules/vnet/README.md)
+* [Monitoring module documentation](modules/monitoring/README.md)
+* [Stage 2 summary](docs/stage-2-summary.md)
 
 ---
 
-# 🔒 Remote State & Security Controls
+## ⚙️ CI/CD Workflow
 
-The root Terraform state is stored in an Azure Storage container.
+Azure DevOps is used to validate Terraform configuration and control infrastructure deployment.
 
-The implemented configuration includes:
-
-* Microsoft Entra ID authorization for Storage data-plane operations.
-* Shared-key authorization disabled.
-* Anonymous blob access disabled and private container access.
-* HTTPS-only transport with TLS 1.2 minimum.
-* Blob versioning enabled.
-* Standard locally redundant storage (LRS) for the POC.
-
-The bootstrap configuration is intentionally separate from the root network configuration to avoid a circular dependency during backend initialization.
-
-**State security:** Terraform state and saved plan files can contain sensitive infrastructure information. They must not be committed to source control or published as ordinary artifacts.
-
----
-
-# ⚙️ Deployment Workflow
-The following diagram illustrates the Terraform infrastructure deployment workflow.
+The workflow separates validation from deployment and includes a gated application process for the main branch.
 
 <p align="center">
-  <img src="docs/terraform-pipeline-workflow.png" alt="Terraform pipeline workflow" width="900">
+  <img src="docs/terraform-pipeline-workflow.png" alt="Terraform CI/CD deployment workflow" width="900">
 </p>
 
 <details>
-<summary>View the SVG version</summary>
+<summary>View the SVG workflow diagram</summary>
 
 ![Terraform pipeline workflow](docs/terraform-pipeline-workflow.svg)
 
 </details>
 
----
+### Workflow Overview
 
-## Prerequisites
+1. **Validation:** Run Terraform formatting and configuration validation checks.
+2. **Initialization:** Initialize Terraform using the appropriate backend configuration for the workflow.
+3. **Planning:** Generate and review the proposed infrastructure changes.
+4. **Approval:** Apply the configured deployment approval controls.
+5. **Application:** Apply the reviewed plan through the controlled pipeline.
+6. **Verification:** Confirm the resulting infrastructure state and investigate unexpected differences.
 
-* An Azure subscription with appropriate resource permissions.
-* Azure CLI authenticated to the intended tenant and subscription.
-* A compatible Terraform version.
-* Microsoft Entra ID permissions for Azure resource management and Storage data-plane access.
-* Git.
+The exact execution path depends on the pipeline stage and whether the operation targets the bootstrap or root configuration.
 
-## 1. Authenticate and Verify the Subscription
+### Deployment Safety
 
-```powershell
-az login
+Before applying infrastructure changes:
 
-az account show
-```
+* Verify the intended Azure tenant and subscription.
+* Confirm the backend configuration and required permissions.
+* Review the complete Terraform plan.
+* Confirm that the proposed changes affect only the intended resources.
+* Treat saved plans and state files as sensitive artifacts.
+* Use the configured deployment approval process.
 
-Confirm that the active subscription is the intended target before proceeding.
-
-## 2. Initialize and Review the Bootstrap Configuration
-
-The bootstrap stack provisions the state resource group, storage account, and private container.
-
-```powershell
-Set-Location .\bootstrap
-
-terraform init
-
-terraform validate
-
-terraform plan
-```
-
-Review the plan before applying.
-
-If these resources already exist, reconcile the existing state and configuration rather than attempting to recreate them.
-
-## 3. Initialize and Review the Root Configuration
-
-Return to the project root:
-
-```powershell
-Set-Location ..
-
-terraform init
-
-terraform validate
-
-terraform plan
-```
-
-The root backend must reference the provisioned storage account and container.
-
-Review backend settings and authorization before initialization.
-
-## 4. Apply a Reviewed Plan
-
-```powershell
-terraform plan -out="pe01-reviewed.tfplan"
-
-terraform show "pe01-reviewed.tfplan"
-
-terraform apply "pe01-reviewed.tfplan"
-```
-
-Apply only after reviewing the proposed changes and confirming the target subscription.
-
-A saved plan should be treated as sensitive because it may contain infrastructure details and other sensitive values.
-
-## 5. Validate the Resulting Configuration
-
-```powershell
-terraform fmt -check -recursive
-
-terraform validate
-
-terraform plan
-
-terraform output
-```
-
-When deployed resources match the declared configuration, Terraform should report:
-
-```text
-No changes. Your infrastructure matches the configuration.
-```
+The workflow diagram describes the intended deployment flow; it should not be interpreted as proof that every possible pipeline execution has been independently tested.
 
 ---
 
-# 🧪 Verification & Drift Reconciliation
+## 🔒 Remote State and Security Controls
 
-The network-foundation implementation was checked using Terraform formatting and validation commands. The final plan reported no changes.
+The Terraform root configuration uses Azure Storage for remote state.
 
-A controlled drift exercise was also completed:
+The documented design includes:
 
-1. A tag was added manually to the application NSG in Azure.
-2. Terraform detected the undeclared tag during planning.
-3. The reviewed saved plan proposed removing the tag to restore the declared configuration.
-4. The plan was applied.
-5. The tag was verified as absent.
-6. A subsequent plan reported no changes.
+| Control                           | Purpose                                                                    |
+| --------------------------------- | -------------------------------------------------------------------------- |
+| Microsoft Entra ID authorization  | Supports identity-based authorization for Storage data-plane operations    |
+| Shared-key authorization disabled | Reduces reliance on account-key authentication                             |
+| Anonymous Blob access disabled    | Prevents anonymous access to Blob data                                     |
+| Private container access          | Restricts anonymous container access                                       |
+| HTTPS-only transport              | Requires encrypted transport                                               |
+| TLS 1.2 minimum                   | Establishes a minimum transport security version                           |
+| Blob versioning                   | Supports recovery from certain Blob changes                                |
+| Private endpoint                  | Provides private network connectivity to the Blob service                  |
+| Separate bootstrap configuration  | Allows state infrastructure to be managed separately from the root backend |
 
-This exercise demonstrates configuration reconciliation for a controlled resource-tag change.
+The bootstrap configuration is separated from the root network configuration to avoid a circular dependency during backend initialization.
 
----
+**State security is critical:** Terraform state and saved plan files can contain sensitive infrastructure details. They should not be committed to source control or published as ordinary portfolio artifacts.
 
-# 🏷️ Governance Tags
-
-| Tag           | Example Value        |
-| ------------- | -------------------- |
-| `owner`       | `cloud-platform-poc` |
-| `environment` | `poc`                |
-| `costcenter`  | `CC100`              |
-| `workload`    | `landingzone`        |
-| `managed-by`  | `terraform`          |
+The presence of a control in Terraform configuration should not be treated as proof of its deployed state or operational effectiveness without corresponding validation.
 
 ---
 
-# 📂 Security Evidence & Documentation
+## 📊 Monitoring and Security Logging
 
-Evidence should support implementation claims and the acceptance status of each stage.
+Stage 3 extends the foundation with centralized monitoring and security logging.
 
-| Evidence Area                                          | Purpose                                                                 |
-| ------------------------------------------------------ | ----------------------------------------------------------------------- |
-| `cloud-init/`                                          | Initial VM configuration and hardening                                  |
-| `tests/`                                               | Repeatable infrastructure and security validation                       |
-| `reports/evidence/AC-08/`                              | Agent security and runtime evidence                                     |
-| `reports/evidence/AC-09/`                              | Secret-scanning evidence                                                |
-| `reports/evidence/AC-11-role-assignment-baseline.json` | Role-assignment baseline; review and sanitize before public publication |
+The workstream covers:
 
-The PE-02 disposable SSH-hardening validation includes a Terraform test configuration, cloud-init configuration, and a validation report documenting the test results and cleanup.
+* Azure Monitor diagnostic settings.
+* Log Analytics workspace integration.
+* Resource log ingestion validation.
+* Monitoring coverage and gap assessment.
+* Alert configuration and notification testing.
+* Documentation of monitoring controls and outstanding issues.
 
-**Evidence boundary:** A successful test on a disposable VM demonstrates the behavior of that test environment. It does not automatically establish that the existing self-hosted agent meets the same requirements.
+The monitoring work is **in progress**. The existence of a workspace or diagnostic setting does not, by itself, demonstrate complete monitoring coverage or successful alert delivery.
 
-Before publishing evidence publicly, review screenshots and reports for:
+The monitoring architecture and data-flow diagram are available here:
 
-* Credentials, tokens, or private keys.
-* Sensitive subscription or tenant details.
+![Monitoring data flow](docs/architecture/monitoring-data-flow.svg)
+
+For implementation details, see the [monitoring module documentation](modules/monitoring/README.md).
+
+---
+
+## 🧪 Validation and Drift Reconciliation
+
+The network-foundation implementation was checked using Terraform formatting and validation commands, and the final plan reported no changes at the time of validation.
+
+A controlled drift-reconciliation exercise was also completed.
+
+| Validation activity                               | Result                                          |
+| ------------------------------------------------- | ----------------------------------------------- |
+| Terraform formatting and configuration validation | Performed                                       |
+| Network-foundation Terraform plan                 | Reported no changes at the time of validation   |
+| Manual NSG tag change                             | Introduced as a controlled drift test           |
+| Terraform drift detection                         | Detected the undeclared tag                     |
+| Reviewed reconciliation plan                      | Proposed removal of the undeclared tag          |
+| Reconciliation                                    | Applied                                         |
+| Post-reconciliation verification                  | Tag absent; subsequent plan reported no changes |
+
+These results demonstrate the documented network-foundation and drift-reconciliation exercises. They should not be interpreted as a claim that every resource, workload, security control, or future roadmap stage has been independently tested.
+
+### Evidence and Validation Boundaries
+
+Evidence should be linked to the relevant implementation and acceptance criteria.
+
+Before publishing evidence, review it for:
+
+* Credentials, access tokens, and private keys.
+* Subscription and tenant identifiers that do not need to be public.
 * Unnecessary principal identifiers or internal resource details.
-* Local filesystem paths that you do not want to disclose.
-* Terraform state or saved plan contents.
+* Local filesystem paths.
+* Terraform state and saved plan contents.
+* Information belonging to internal environments or third parties.
 
-
-
----
-
-# 💰 Operational & Cost Considerations
-
-The POC creates network resources and a remote-state storage backend. Azure charges may apply while resources remain deployed.
-
-Review Azure Cost Management before leaving resources running.
-
-For teardown:
-
-1. Capture required evidence.
-2. Review the destroy plan carefully.
-3. Confirm the resources selected for deletion.
-4. Preserve the bootstrap resource group, storage account, private container, and root remote state if subsequent stages depend on them.
-
-**Do not remove the backend while the root Terraform state still depends on it.**
-
-Existing shared infrastructure must not be modified or destroyed merely to clean up a disposable test.
+Only sanitized evidence intended for public release should be included in this repository.
 
 ---
 
-# 📌 Scope Boundaries
+## 🗺️ Next Engineering Milestones
 
-* The network-foundation POC does not include deployed Azure Firewall or Azure Bastion services; only their subnets are reserved.
+The roadmap extends the current foundation through additional security and operational capabilities.
+
+| Stage   | Planned engineering focus                                                                                    |
+| ------- | ------------------------------------------------------------------------------------------------------------ |
+| Stage 3 | Complete monitoring coverage assessment, log validation, and alert notification testing                      |
+| Stage 4 | Review workload identity federation, service-connection permissions, role assignments, and privileged access |
+| Stage 5 | Design and validate Azure Firewall, routing, and centralized egress                                          |
+| Stage 6 | Implement and assess Azure Policy and governance controls                                                    |
+| Stage 7 | Define backup scope, retention requirements, recovery testing, and resilience evidence                       |
+| Stage 8 | Complete end-to-end validation, runbooks, outstanding-risk review, and operational handover                  |
+
+Each stage should have defined acceptance criteria and supporting evidence before it is marked complete.
+
+---
+
+## 💰 Operational and Cost Considerations
+
+The POC creates Azure networking resources and remote-state storage infrastructure. Charges may apply while these resources remain deployed.
+
+Before leaving resources running:
+
+* Review Azure Cost Management.
+* Identify resources that are no longer required.
+* Preserve infrastructure needed by subsequent stages.
+* Review deletion plans before performing cleanup.
+
+**Do not remove the Terraform backend while the root Terraform state still depends on it.**
+
+Before destroying resources, capture required evidence, review the destroy plan, and confirm the resources selected for deletion.
+
+---
+
+## ⚠️ Known Limitations
+
+The current POC has the following documented boundaries:
+
+* Azure Firewall and Azure Bastion are not deployed; their subnets are reserved.
 * No virtual network gateway is deployed.
 * The original network-foundation implementation does not include application VMs or application endpoints.
-* TCP 8080 is defined in the application NSG policy but was not validated against a live endpoint in the original network-foundation POC.
-* The PE-02 SSH-hardening test validates a disposable VM and does not, by itself, prove persistent hardening of the existing Azure DevOps agent.
-* The roadmap represents phased target work; a planned capability must not be represented as completed without implementation and supporting evidence.
+* The TCP 8080 application NSG rule was not validated against a live endpoint as part of the original network-foundation implementation.
+* The disposable SSH-hardening test does not, by itself, establish persistent hardening of the existing self-hosted agent.
+* Centralized monitoring and security logging remain in progress.
+* Identity and privileged-access improvements, centralized egress, governance, resilience, and operational handover remain future roadmap work.
+
+These limitations are intentional scope boundaries for the current POC, not claims that the corresponding production capabilities have already been implemented.
 
 ---
 
-# 🏁 Project Outcome
+## 🏁 Project Outcome
 
-The completed Stage 1 network foundation demonstrates a repeatable Azure network architecture using Terraform, with subnet segmentation, explicit NSG policy, bidirectional VNet peering, secure remote-state configuration, consistent tagging, and a controlled drift-reconciliation workflow.
+The completed Stage 1 network foundation demonstrates a repeatable Azure network architecture using Terraform, with subnet segmentation, explicit NSG policies, bidirectional VNet peering, secure remote-state configuration, consistent tagging, and a controlled drift-reconciliation workflow.
 
-Stage 2 assessment and CI/CD approval validation have been completed. Remaining hardening actions are tracked as follow-up improvements. Subsequent stages will extend the foundation with centralized monitoring, identity and privileged-access controls, centralized egress, governance, resilience, and operational handover.
+Stage 2 assessment and CI/CD approval validation have been completed, with remaining hardening actions tracked as follow-up work.
 
-This POC is a foundation for further evaluation, not a complete production landing zone. Production adoption would require additional workload testing, identity and access review, routing and inspection design, monitoring, policy enforcement, DNS strategy, resilience testing, and formal operational acceptance.
+Stage 3 extends the platform with centralized monitoring and security logging, followed by identity, privileged access, centralized egress, governance, resilience, and operational acceptance.
+
+The project demonstrates an evidence-driven approach to Azure infrastructure engineering and cloud security.
+
+**This POC is a foundation for further evaluation, not a complete production landing zone.** Production adoption would require additional workload testing, identity and access review, routing and inspection design, monitoring coverage, policy enforcement, DNS strategy, resilience testing, and formal operational acceptance.
